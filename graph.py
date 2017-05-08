@@ -1,5 +1,4 @@
 import argparse
-import collections
 import glob
 import json
 import os
@@ -78,7 +77,8 @@ class Graph(object):
         else:
             node['label'] = os.path.basename(node_name)
 
-        directory = os.path.dirname(node_name)
+        # Take up to the last two directory names as the group
+        directory = os.sep.join(node_name.split(os.sep)[-3:-1])
         node['group'] = directory
 
         node['x'] = random.random() * 0.01
@@ -114,6 +114,7 @@ class Graph(object):
 def try_prefixes(path, prefixes):
     for prefix in prefixes:
         full_path = os.path.realpath(os.path.join(prefix, path))
+        print('Trying ' + prefix + ' -- ' + full_path, file=sys.stderr)
         if os.path.exists(full_path):
             return full_path
 
@@ -141,6 +142,8 @@ def walk(args):
             full_pattern = '{0}/**/{1}'.format(path, pattern)
             print('Globbing for {0}'.format(full_pattern), file=sys.stderr)
             for filename in glob.iglob(full_pattern, recursive=True):
+                if os.path.isdir(filename):
+                    continue
                 includes = get_includes(filename, [path] + args.prefixes)
                 graph.add(filename, includes)
 
@@ -152,9 +155,10 @@ def parse_arguments(args):
     parser.add_argument('directories',
                         nargs='+',
                         help='The directories to look at')
-    parser.add_argument('--patterns',
-                        nargs='+',
+    parser.add_argument('--pattern',
+                        action='append',
                         default=['*.[ch]pp', '*.[ch]'],
+                        dest='patterns',
                         help='The file (glob) patterns to look for')
     parser.add_argument('--directed',
                         action='store_true',
@@ -181,10 +185,12 @@ def parse_arguments(args):
                         help='The variation in RGB around the base colors')
     parser.add_argument('--color-alpha-min',
                         type=float,
-                        default=0.5,
+                        default=0.7,
                         help='The minimum alpha value for colors')
 
     args = parser.parse_args(args)
+
+    args.prefixes.append('')
 
     if args.directed and args.relation:
         args.directed = args.relation
