@@ -8,35 +8,57 @@ import re
 import sys
 
 
-Point = collections.namedtuple('Point', 'x, y')
+class Colors(object):
+    def __init__(self, base_colors):
+        self.base = list(base_colors)
+        self.variation = None
+        self.alpha_min = None
+
+    @staticmethod
+    def to_string(rgba):
+        return 'rgba({0})'.format(','.join(map(str, rgba)))
 
 
-def generate_color():
-    colors = [random.randrange(32, 256) for _ in 'rgb']
-    return 'rgb({0})'.format(','.join(map(str, colors)))
+def random_color(base, variation):
+    color = base + (2 * random.random() - 1) * variation
+    return max(8, min(int(color), 256))
+
+
+def generate_color(colors):
+    rgba = [random_color(color, colors.variation) for color in colors.base]
+    rgba.append(max(colors.alpha_min, random.random()))
+    # colors = [random.randrange(32, 256) for _ in 'rgb']
+    return Colors.to_string(rgba)
 
 
 class Graph(object):
-    def __init__(self, directed, full_path):
+    def __init__(self, directed, full_path, colors):
         self.edges = []
         self.nodes = {}
         self.directed = directed
         self.full_path = full_path
-        self.clusters = {}
+        self.colors = colors
 
     def add(self, node_name, neighbors):
-        color = generate_color()
+        color = generate_color(self.colors)
 
-        node = self._get_or_add_node(node_name, color=color)
+        node = self._get_or_add_node(node_name,
+                                     color=color,
+                                     size=len(neighbors))
         node['size'] = len(neighbors)
 
         for neighbor_name in neighbors:
+            color = generate_color(self.colors)
             neighbor = self._get_or_add_node(neighbor_name, color=color)
             self._add_edge(node, neighbor)
 
     def to_json(self):
+        self.resize()
         nodes = list(self.nodes.values())
         return json.dumps(dict(nodes=nodes, edges=self.edges), indent=4)
+
+    def resize(self):
+        pass
 
     def _get_or_add_node(self, node_name, **settings):
         node = self.nodes.get(node_name)
@@ -49,7 +71,7 @@ class Graph(object):
 
         node = settings
         node['id'] = len(self.nodes)
-        node['size'] = 1
+        node['size'] = settings.get('size', 1)
 
         if self.full_path:
             node['label'] = node_name
@@ -59,8 +81,8 @@ class Graph(object):
         directory = os.path.dirname(node_name)
         node['group'] = directory
 
-        position = self._generate_position(directory)
-        node['x'], node['y'] = position
+        node['x'] = random.random() * 0.01
+        node['y'] = random.random() * 0.01
 
         self.nodes[node_name] = node
 
@@ -69,7 +91,7 @@ class Graph(object):
     def _add_edge(self, source, target, **settings):
         edge = settings
         edge['id'] = len(self.edges)
-        edge['size'] = 1
+        edge['size'] = random.random()
 
         edge['source'] = source['id']
         edge['target'] = target['id']
@@ -77,24 +99,11 @@ class Graph(object):
             source, target = target, source
 
         if self.directed:
-            edge['type'] = 'arrow'
+            edge['type'] = 'curvedArrow'
 
         self.edges.append(edge)
 
         return edge
-
-    def _generate_position(self, cluster):
-        cluster_center = self.clusters.get(cluster)
-        if cluster_center is None:
-            x = random.random() * 0
-            y = random.random() * 0
-            cluster_center = Point(x, y)
-            self.clusters[cluster] = cluster_center
-
-        x = cluster_center.x + random.random()
-        y = cluster_center.y + random.random()
-
-        return Point(x, y)
 
     def __str__(self):
         nodes = len(self.nodes)
@@ -125,7 +134,7 @@ def get_includes(filename, prefixes):
 
 
 def walk(args):
-    graph = Graph(args.directed, args.full_path)
+    graph = Graph(args.directed, args.full_path, args.colors)
     for directory in args.directories:
         for pattern in args.patterns:
             path = os.path.realpath(directory)
@@ -162,11 +171,29 @@ def parse_arguments(args):
                         dest='prefixes',
                         default=[os.getcwd()],
                         help='An include path for headers to recognize')
+    parser.add_argument('--colors',
+                        type=lambda p: Colors(map(int, p.split(','))),
+                        default='234, 82, 77',
+                        help='The base rgb colors separated by commas')
+    parser.add_argument('--color-variation',
+                        type=int,
+                        default=200,
+                        help='The variation in RGB around the base colors')
+    parser.add_argument('--color-alpha-min',
+                        type=float,
+                        default=0.5,
+                        help='The minimum alpha value for colors')
 
     args = parser.parse_args(args)
 
     if args.directed and args.relation:
         args.directed = args.relation
+
+    if not (0 <= args.color_alpha_min <= 1):
+        raise RuntimeError('--color-alpha-min must be in interval [0, 1]')
+
+    args.colors.variation = args.color_variation
+    args.colors.alpha_min = args.color_alpha_min
 
     return args
 
