@@ -1,0 +1,60 @@
+body {
+	color: #333;
+	font-size: 14px;
+	font-family: Lato, sans-serif;
+}
+
+#graph-container {
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	position: absolute;
+	background: rgb(249, 247, 237);
+}
+
+#control-pane {
+	top: 10px;
+	right: 10px;
+	position: absolute;
+	width: 230px;
+	background-color: rgb(249, 247, 237);
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+#control-pane > div {
+	margin: 10px;
+	overflow-x: auto;
+}
+
+.line {
+	clear: both;
+	display: block;
+	width: 100%;
+	margin: 0;
+	padding: 12px 0 0 0;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+	background: transparent;
+}
+
+h2, h3, h4 {
+	padding: 0;
+	text-transform: uppercase;
+}
+
+h2.underline {
+	background: #f4f0e4;
+	margin: 0;
+	border-radius: 2px;
+	padding: 8px 12px;
+	font-weight: 700;
+}
+
+.hidden {
+	display: none;
+	visibility: hidden;
+}
+
+input[type=range] {
+	width: 160px;
+}
