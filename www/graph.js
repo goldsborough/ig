@@ -27,8 +27,6 @@ let instance = new sigma({
       $('min-degree').value = value;
       $('min-degree-val').textContent = value;
 
-      console.log(value);
-
       filter
         .undo('min-degree')
         .nodesBy(node => instance.graph.degree(node.id) >= value, 'min-degree')
@@ -37,12 +35,10 @@ let instance = new sigma({
 
     function applyGroupFilter(element) {
       let group = element.target[element.target.selectedIndex].value;
-      if (group.length > 0) {
-        filter
-          .undo('node-group')
-          .nodesBy(node => node.group === group, 'node-group')
-          .apply();
-      }
+      filter
+        .undo('node-group')
+        .nodesBy(node => !group || node.group === group, 'node-group')
+        .apply();
     }
 
     // for Chrome and FF
