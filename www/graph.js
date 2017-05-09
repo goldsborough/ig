@@ -67,16 +67,16 @@ let instance = new sigma({
     });
   }
 
-  sigma.parsers.json('/tmp/graph.json', instance, () => {
+  sigma.parsers.json('graph.json', instance, () => {
     instance.refresh();
     instance.startForceAtlas2({
       worker: true,
       barnesHutOptimize: true,
       adjustSizes: true,
-      slowDown: 50,
+      slowDown: 20,
       strongGravityMode: true
     });
-    setTimeout(() => instance.killForceAtlas2(), 8000);
+    setTimeout(() => instance.killForceAtlas2(), 5000);
     createFilter(instance);
   });
 

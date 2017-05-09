@@ -10,8 +10,7 @@ import webbrowser
 
 import http.server
 
-GRAPH_PATH = '/tmp/graph.json'
-
+WWW_PATH = os.path.join(os.path.dirname(__file__), 'www')
 
 class Colors(object):
     def __init__(self, base_colors):
@@ -62,7 +61,8 @@ class Graph(object):
         return json.dumps(dict(nodes=nodes, edges=self.edges), indent=4)
 
     def write(self):
-        with open(GRAPH_PATH, 'w') as graph_file:
+        path = os.path.join(WWW_PATH, 'graph.json')
+        with open(path, 'w') as graph_file:
             graph_file.write(self.to_json())
 
     def _get_or_add_node(self, node_name, **settings):
@@ -84,7 +84,9 @@ class Graph(object):
             node['label'] = os.path.basename(node_name)
 
         # Take up to the last two directory names as the group
-        directory = os.sep.join(node_name.split(os.sep)[-3:-1])
+        directory = os.sep.join(os.path.dirname(node_name).split(os.sep)[-2:])
+        if not os.path.isdir(directory):
+            directory = ''
         node['group'] = directory
 
         node['x'] = random.random() * 0.01
@@ -97,7 +99,7 @@ class Graph(object):
     def _add_edge(self, source, target, **settings):
         edge = settings
         edge['id'] = len(self.edges)
-        edge['size'] = random.random()
+        edge['size'] = 2
         edge['type'] = 'curvedArrow'
 
         edge['source'] = source['id']
@@ -154,6 +156,24 @@ def walk(args):
                 graph.add(filename, includes)
 
     return graph
+
+
+def serve(open_immediately, port):
+    address = 'http://localhost:{0}'.format(port)
+    print('Serving at {0}'.format(address))
+
+    os.chdir(WWW_PATH)
+    handler = http.server.SimpleHTTPRequestHandler
+    handler.extensions_map.update({
+        '.webapp': 'application/x-web-app-manifest+json',
+    })
+
+    server = socketserver.TCPServer(('', port), handler)
+
+    if open_immediately:
+        webbrowser.open('{0}/graph.html'.format(address))
+
+    server.serve_forever()
 
 
 def parse_arguments(args):
@@ -215,24 +235,6 @@ def parse_arguments(args):
     args.colors.alpha_min = args.color_alpha_min
 
     return args
-
-
-def serve(open_immediately, port):
-    address = 'http://localhost:{0}'.format(port)
-    print('Serving at {0}'.format(address))
-
-    os.chdir(os.path.dirname(__file__))
-    handler = http.server.SimpleHTTPRequestHandler
-    handler.extensions_map.update({
-        '.webapp': 'application/x-web-app-manifest+json',
-    })
-
-    server = socketserver.TCPServer(('', port), handler)
-
-    if open_immediately:
-        webbrowser.open(address)
-
-    server.serve_forever()
 
 
 def main():
