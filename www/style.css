@@ -10,7 +10,7 @@ body {
 	left: 0;
 	right: 0;
 	position: absolute;
-	background: rgb(249, 247, 237);
+	background: rgb(249, 247, 237); /* A light beige */
 }
 
 #control-pane {
@@ -37,7 +37,7 @@ body {
 	background: transparent;
 }
 
-h2, h3, h4 {
+h2, h3 {
 	padding: 0;
 	text-transform: uppercase;
 }
@@ -48,11 +48,6 @@ h2.underline {
 	border-radius: 2px;
 	padding: 8px 12px;
 	font-weight: 700;
-}
-
-.hidden {
-	display: none;
-	visibility: hidden;
 }
 
 input[type=range] {
