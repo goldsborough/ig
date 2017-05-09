@@ -4,7 +4,7 @@ import json
 import os
 import random
 
-from ig import main
+from ig import paths
 
 
 class Graph(object):
@@ -33,7 +33,7 @@ class Graph(object):
         return json.dumps(dict(nodes=nodes, edges=self.edges), indent=4)
 
     def write(self):
-        path = os.path.join(main.WWW_PATH, 'graph.json')
+        path = os.path.join(paths.WWW, 'graph.json')
         with open(path, 'w') as graph_file:
             graph_file.write(self.to_json())
 

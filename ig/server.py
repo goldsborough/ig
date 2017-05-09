@@ -1,7 +1,7 @@
 import os
 import webbrowser
 
-from ig import main
+from ig import paths
 
 try:
     import socketserver
@@ -12,7 +12,7 @@ except ImportError:
 
 
 def serve(open_immediately, port):
-    os.chdir(main.WWW_PATH)
+    os.chdir(paths.WWW)
     handler = http.SimpleHTTPRequestHandler
     handler.extensions_map.update({
         '.webapp': 'application/x-web-app-manifest+json',

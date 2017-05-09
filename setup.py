@@ -58,5 +58,5 @@ setup(
         '../www/sigma/*'
     ]),
 
-    entry_points=dict(console_scripts=['ig = ig.graph:main'])
+    entry_points=dict(console_scripts=['ig = ig.main:main'])
 )

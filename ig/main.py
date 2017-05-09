@@ -6,12 +6,6 @@ import sys
 
 from ig import colors, graph, server, walk
 
-root = os.path.dirname(os.path.realpath(__file__))
-WWW_PATH = os.path.join(root, os.pardir, 'www')
-if not os.path.exists(WWW_PATH):
-    message = 'Could not find www directory for ig: {0}'
-    raise EnvironmentError(message.format(WWW_PATH))
-
 
 def parse_arguments(args):
     parser = argparse.ArgumentParser(description='Visualize C++ include graphs')
