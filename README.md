@@ -78,6 +78,13 @@ Works with Python 2 and 3.
 Who ever said C++ was an ugly language?
 
 <p align="center">
+  <img src="extra/llvm-adt.png">
+  <br><br>
+  <b>LLVM/ADT</b>
+  <br><br>
+</p>
+
+<p align="center">
   <img src="extra/tf.png">
   <br><br>
   <b>TensorFlow</b>
@@ -85,9 +92,9 @@ Who ever said C++ was an ugly language?
 </p>
 
 <p align="center">
-  <img src="extra/llvm-adt.png">
+  <img src="extra/libcxx.png">
   <br><br>
-  <b>LLVM/ADT</b>
+  <b>libc++ (the standard library)</b>
   <br><br>
 </p>
 
