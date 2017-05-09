@@ -76,7 +76,7 @@ let instance = new sigma({
       slowDown: 20,
       strongGravityMode: true
     });
-    setTimeout(() => instance.killForceAtlas2(), 5000);
+    setTimeout(() => instance.killForceAtlas2(), 10000);
     createFilter(instance);
   });
 

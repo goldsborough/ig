@@ -1,16 +1,24 @@
+from __future__ import print_function
+
 import argparse
-import glob
+import fnmatch
 import json
 import os
 import random
 import re
-import socketserver
 import sys
 import webbrowser
 
-import http.server
+try:
+    import socketserver
+    import http.server as http
+except ImportError:
+    import SocketServer as socketserver
+    import SimpleHTTPServer as http
+
 
 WWW_PATH = os.path.join(os.path.dirname(__file__), 'www')
+
 
 class Colors(object):
     def __init__(self, base_colors):
@@ -31,7 +39,6 @@ def random_color(base, variation):
 def generate_color(colors):
     rgba = [random_color(color, colors.variation) for color in colors.base]
     rgba.append(max(colors.alpha_min, random.random()))
-    # colors = [random.randrange(32, 256) for _ in 'rgb']
     return Colors.to_string(rgba)
 
 
@@ -85,8 +92,6 @@ class Graph(object):
 
         # Take up to the last two directory names as the group
         directory = os.sep.join(os.path.dirname(node_name).split(os.sep)[-2:])
-        if not os.path.isdir(directory):
-            directory = ''
         node['group'] = directory
 
         node['x'] = random.random() * 0.01
@@ -99,7 +104,7 @@ class Graph(object):
     def _add_edge(self, source, target, **settings):
         edge = settings
         edge['id'] = len(self.edges)
-        edge['size'] = 2
+        edge['size'] = 10
         edge['type'] = 'curvedArrow'
 
         edge['source'] = source['id']
@@ -139,18 +144,23 @@ def get_includes(filename, prefixes):
     return includes
 
 
+def glob(directory, pattern):
+    for root, _, filenames in os.walk(directory):
+        for filename in fnmatch.filter(filenames, pattern):
+            yield os.path.join(root, filename)
+
+
 def walk(args):
     graph = Graph(args.relation, args.full_path, args.colors)
     for directory in args.directories:
+        # Swap pattern <-> filename loops if too inefficient
         for pattern in args.patterns:
             path = os.path.realpath(directory)
-            full_pattern = '{0}/**/{1}'.format(path, pattern)
-            if args.verbose:
-                print('Globbing for {0}'.format(full_pattern))
-            for filename in glob.iglob(full_pattern, recursive=True):
+            for filename in glob(path, pattern):
                 if os.path.isdir(filename):
                     if args.verbose:
-                        print('{0} is a directory, skipping'.format(filename))
+                        print('{0} is a directory, skipping'.format(filename),
+                              file=sys.stderr)
                     continue
                 includes = get_includes(filename, [path] + args.prefixes)
                 graph.add(filename, includes)
@@ -159,19 +169,19 @@ def walk(args):
 
 
 def serve(open_immediately, port):
-    address = 'http://localhost:{0}'.format(port)
-    print('Serving at {0}'.format(address))
-
     os.chdir(WWW_PATH)
-    handler = http.server.SimpleHTTPRequestHandler
+    handler = http.SimpleHTTPRequestHandler
     handler.extensions_map.update({
         '.webapp': 'application/x-web-app-manifest+json',
     })
 
     server = socketserver.TCPServer(('', port), handler)
 
+    address = 'http://localhost:{0}/graph.html'.format(port)
+    print('Serving at {0}'.format(address))
+
     if open_immediately:
-        webbrowser.open('{0}/graph.html'.format(address))
+        webbrowser.open(address)
 
     server.serve_forever()
 
@@ -181,7 +191,7 @@ def parse_arguments(args):
     parser.add_argument('directories',
                         nargs='+',
                         help='The directories to look at')
-    parser.add_argument('--pattern',
+    parser.add_argument('-p', '--pattern',
                         action='append',
                         default=['*.[ch]pp', '*.[ch]'],
                         dest='patterns',
@@ -195,13 +205,16 @@ def parse_arguments(args):
                         action='store_true',
                         help='Whether to turn on verbose output')
 
-    parser.add_argument('-p', '--port',
+    parser.add_argument('--port',
                         type=int,
                         default=8080,
                         help='The port to serve the visualization on')
     parser.add_argument('-o', '--open',
                         action='store_true',
                         help='Whether to open the webpage immediately')
+    parser.add_argument('-j', '--json',
+                        action='store_true',
+                        help='Whether to print the graph JSON and not serve it')
 
     parser.add_argument('--relation',
                         choices=['includes', 'included-by'],
@@ -240,9 +253,13 @@ def parse_arguments(args):
 def main():
     args = parse_arguments(sys.argv[1:])
     graph = walk(args)
-    print('Result: {0}'.format(graph))
-    graph.write()
-    serve(args.open, args.port)
+    print('Result: {0}'.format(graph), file=sys.stderr)
+
+    if args.json:
+        print(graph.to_json())
+    else:
+        graph.write()
+        serve(args.open, args.port)
 
 
 if __name__ == '__main__':
