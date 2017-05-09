@@ -18,7 +18,7 @@ with open('README.md') as readme:
     long_description = readme.read()
 
 setup(
-    name='ig',
+    name='ig-cpp',
     version=version,
 
     description='A tool to visualize include graphs for C++ projects',
@@ -31,7 +31,7 @@ setup(
     author_email='peter@goldsborough.me',
 
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
 
         'Intended Audience :: Developers',
         'Topic :: Software Development',
@@ -51,11 +51,11 @@ setup(
     keywords='visualization C++ tool',
     packages=find_packages(exclude=['www']),
     include_package_data=True,
-    package_data=dict(li=[
+    package_data=dict(ig=[
         '../README.md',
         '../Makefile',
         '../www/*'
     ]),
 
-    entry_points=dict(console_scripts=['ig = ig.main:main'])
+    entry_points=dict(console_scripts=['ig = ig.graph:main'])
 )

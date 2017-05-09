@@ -268,7 +268,3 @@ def main():
     else:
         graph.write()
         serve(args.open, args.port)
-
-
-if __name__ == '__main__':
-    main()
