@@ -43,12 +43,13 @@ def generate_color(colors):
 
 
 class Graph(object):
-    def __init__(self, relation, full_path, colors):
+    def __init__(self, relation, full_path, colors, group_granularity):
         self.edges = []
         self.nodes = {}
         self.relation = relation
         self.full_path = full_path
         self.colors = colors
+        self.group_granularity = group_granularity
 
     def add(self, node_name, neighbors):
         color = generate_color(self.colors)
@@ -91,8 +92,9 @@ class Graph(object):
             node['label'] = os.path.basename(node_name)
 
         # Take up to the last two directory names as the group
-        directory = os.sep.join(os.path.dirname(node_name).split(os.sep)[-2:])
-        node['group'] = directory
+        directories = os.path.dirname(node_name).split(os.sep)
+        begin = len(directories) - self.group_granularity
+        node['group'] = os.sep.join(directories[begin:begin + 2])
 
         node['x'] = random.random() * 0.01
         node['y'] = random.random() * 0.01
@@ -150,8 +152,7 @@ def glob(directory, pattern):
             yield os.path.join(root, filename)
 
 
-def walk(args):
-    graph = Graph(args.relation, args.full_path, args.colors)
+def walk(graph, args):
     for directory in args.directories:
         # Swap pattern <-> filename loops if too inefficient
         for pattern in args.patterns:
@@ -165,7 +166,7 @@ def walk(args):
                 includes = get_includes(filename, [path] + args.prefixes)
                 graph.add(filename, includes)
 
-    return graph
+    print('Result: {0}'.format(graph), file=sys.stderr)
 
 
 def serve(open_immediately, port):
@@ -220,6 +221,10 @@ def parse_arguments(args):
                         choices=['includes', 'included-by'],
                         default='included-by',
                         help='The specifies the relation of edges')
+    parser.add_argument('--group-granularity',
+                        type=int,
+                        default=2,
+                        help='How coarse to group nodes (by folder)')
     parser.add_argument('--full-path',
                         action='store_true',
                         help='If set, shows the full path for nodes')
@@ -252,8 +257,11 @@ def parse_arguments(args):
 
 def main():
     args = parse_arguments(sys.argv[1:])
-    graph = walk(args)
-    print('Result: {0}'.format(graph), file=sys.stderr)
+    graph = Graph(args.relation,
+                  args.full_path,
+                  args.colors,
+                  args.group_granularity)
+    walk(graph, args)
 
     if args.json:
         print(graph.to_json())
