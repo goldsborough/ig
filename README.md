@@ -98,13 +98,6 @@ Who ever said C++ was an ugly language?
   <br><br>
 </p>
 
-<p align="center">
-  <img src="extra/folly.png">
-  <br><br>
-  <b>Folly</b>
-  <br><br>
-</p>
-
 ## Authors
 
 [Peter Goldsborough](http://goldsborough.me) + [cat](https://goo.gl/IpUmJn)
