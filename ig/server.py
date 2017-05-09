@@ -12,6 +12,13 @@ except ImportError:
 
 
 def serve(open_immediately, port):
+    '''
+    Serves the `www` directory.
+
+    Args:
+        open_immediately: Whether to open the webbrowser with the graph file
+        port: The port at which to serve the graph
+    '''
     os.chdir(paths.WWW)
     handler = http.SimpleHTTPRequestHandler
     handler.extensions_map.update({

@@ -8,6 +8,15 @@ from ig import colors, graph, server, walk
 
 
 def parse_arguments(args):
+    '''
+    Sets up the command line argument parser and parses arguments.
+
+    Args:
+        args: The list of argumnets passed to the command line
+
+    Returns:
+        The parsed arguments.
+    '''
     parser = argparse.ArgumentParser(description='Visualize C++ include graphs')
     parser.add_argument('directories',
                         nargs='+',

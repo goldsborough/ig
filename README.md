@@ -1,7 +1,7 @@
 # :fireworks: ig
 
 <p align="center">
-  <img src="extra/graph.png">
+  <img src="extra/graph.gif">
   <br><br>
   <code>ig</code> is a tool to visualize include graphs for C++ projects
   <br><br>
@@ -60,15 +60,17 @@ optional arguments:
 
 But does it scale? It scales quite well. The graph you see above is the include
 graph for the entire LLVM and clang codebase, which spans more than 5,000 files
-and 1.5M LOC.
+and 1.5M LOC. Note that the visualization also includes sliders to group nodes by folder and filter low-degree nodes.
 
 ## Installation
 
 Get it with pip:
 
 ```sh
-$ pip install ig
+$ pip install ig-cpp
 ```
+
+Works with Python 2 and 3.
 
 ## Authors
 
