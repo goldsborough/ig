@@ -1,7 +1,7 @@
 # :fireworks: ig
 
 <p align="center">
-  <img src="extra/graph.gif">
+  <img src="extra/graph.png">
   <br><br>
   <code>ig</code> is a tool to visualize include graphs for C++ projects
   <br><br>
