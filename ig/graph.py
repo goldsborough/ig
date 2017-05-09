@@ -29,9 +29,11 @@ class Graph(object):
             colors: A `Colors` object storing information about the color scheme
             group_granularity: The granularity setting for node groups
         '''
+        assert relation in ('includes', 'included-by')
+
         self.edges = []
         self.nodes = {}
-        self.relation = relation
+        self.is_included_by_relation = (relation == 'included-by')
         self.use_full_path = full_path
         self.colors = colors
         self.group_granularity = group_granularity
@@ -44,15 +46,15 @@ class Graph(object):
             node_name: The name of the node (i.e. current file)
             neighbors: A list of names of neighbors (included files)
         '''
-        color = self.colors.generate()
-        node = self._get_or_add_node(node_name,
-                                     color=color,
-                                     size=len(neighbors))
-        node['size'] = len(neighbors)
+        node = self._get_or_add_node(node_name)
+
+        if not self.is_included_by_relation:
+            node['size'] = len(neighbors)
 
         for neighbor_name in neighbors:
-            color = self.colors.generate()
-            neighbor = self._get_or_add_node(neighbor_name, color=color)
+            neighbor = self._get_or_add_node(neighbor_name)
+            if self.is_included_by_relation:
+                neighbor['size'] += 1
             self._add_edge(node, neighbor)
 
     def to_json(self):
@@ -86,38 +88,37 @@ class Graph(object):
         '''
         return len(self.nodes) == 0
 
-    def _get_or_add_node(self, node_name, **settings):
+    def _get_or_add_node(self, node_name):
         '''
         Returns a node and possibly adds it to the graph.
 
         Args:
             node_name: The name of the node to fetch
-            settings: Optional settings to pass to the node object
 
         Returns:
             The node entry for the given name.
         '''
         node = self.nodes.get(node_name)
         if node is None:
-            node = self._add_node(node_name, **settings)
+            node = self._add_node(node_name)
         return node
 
-    def _add_node(self, node_name, **settings):
+    def _add_node(self, node_name):
         '''
         Adds a node to the graph.
 
         Args:
             node_name: The name of the node to add
-            settings: optional settings to pass to the node object
 
         Returns:
             The newly created node object.
         '''
         assert node_name not in self.nodes
 
-        node = settings
+        node = {}
         node['id'] = len(self.nodes)
-        node['size'] = settings.get('size', 1)
+        node['size'] = 1
+        node['color'] = self.colors.generate()
 
         if self.use_full_path:
             node['label'] = node_name
@@ -138,25 +139,24 @@ class Graph(object):
 
         return node
 
-    def _add_edge(self, source, target, **settings):
+    def _add_edge(self, source, target):
         '''
         Adds an edge to the graph.
 
         Args:
             source: The entry of the source node
             target: The entry of the target node
-            settings: Optional settings to pass to the edge
 
         Returns:
             The newly created edge object
         '''
-        edge = settings
+        edge = {}
         edge['id'] = len(self.edges)
-        edge['size'] = 10
+        edge['size'] = 10  # Make the arrows larger?
         edge['type'] = 'curvedArrow'
 
         # The natural direction is "includes", so swap if we want "included-by"
-        if self.relation == 'included-by':
+        if self.is_included_by_relation:
             source, target = target, source
         edge['source'] = source['id']
         edge['target'] = target['id']
