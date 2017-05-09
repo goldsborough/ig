@@ -17,7 +17,11 @@ except ImportError:
     import SimpleHTTPServer as http
 
 
-WWW_PATH = os.path.join(os.path.dirname(__file__), 'www')
+root = os.path.dirname(os.path.realpath(__file__))
+WWW_PATH = os.path.join(root, os.pardir, 'www')
+if not os.path.exists(WWW_PATH):
+    message = 'Could not find www directory for ig: {0}'
+    raise EnvironmentError(message.format(WWW_PATH))
 
 
 class Colors(object):
@@ -72,6 +76,10 @@ class Graph(object):
         path = os.path.join(WWW_PATH, 'graph.json')
         with open(path, 'w') as graph_file:
             graph_file.write(self.to_json())
+
+    @property
+    def is_empty(self):
+        return len(self.nodes) == 0
 
     def _get_or_add_node(self, node_name, **settings):
         node = self.nodes.get(node_name)
@@ -262,6 +270,11 @@ def main():
                   args.colors,
                   args.group_granularity)
     walk(graph, args)
+
+    if graph.is_empty:
+        if args.verbose:
+            print('Could not find a single file', file=sys.stderr)
+        return -1
 
     if args.json:
         print(graph.to_json())

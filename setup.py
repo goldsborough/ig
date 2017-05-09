@@ -54,7 +54,8 @@ setup(
     package_data=dict(ig=[
         '../README.md',
         '../Makefile',
-        '../www/*'
+        '../www/*',
+        '../www/sigma/*'
     ]),
 
     entry_points=dict(console_scripts=['ig = ig.graph:main'])

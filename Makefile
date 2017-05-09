@@ -12,7 +12,7 @@ help:
 	@echo "dist - package."
 	@echo "install - install the package to the active Python's site-packages."
 
-clean: clean-build clean-pyc 
+clean: clean-build clean-pyc
 
 clean-build:
 	rm -rf build/
@@ -40,10 +40,10 @@ test-register:
 register:
 	python setup.py register
 
-test-upload:
+test-upload: dist
 	twine upload -r test $(wildcard dist/*)
 
-upload:
+upload: dist
 	twine upload $(wildcard dist/*)
 
 install:
