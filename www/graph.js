@@ -15,11 +15,17 @@ let instance = new sigma({
     // Initialize the Filter API
     const filter = new sigma.plugins.filter(instance);
 
-    setupPane(instance.graph, filter);
+    const maximumDegree = setupPane(instance.graph, filter);
 
-    function applyMinDegreeFilter(element) {
-      let value = element.target.value;
+    function applyMinDegreeFilter(value) {
+      if (typeof value === 'object') {
+        value = value.target.value;
+      }
+
+      $('min-degree').value = value;
       $('min-degree-val').textContent = value;
+
+      console.log(value);
 
       filter
         .undo('min-degree')
@@ -42,6 +48,9 @@ let instance = new sigma({
     // for IE10+, that sucks
     $('min-degree').addEventListener('change', applyMinDegreeFilter);
     $('node-group').addEventListener('change', applyGroupFilter);
+
+    // Start by filtering out the bottom 25% of nodes
+    applyMinDegreeFilter(Math.trunc(maximumDegree / 25));
   }
 
   function setupPane(graph, filter) {
@@ -65,6 +74,8 @@ let instance = new sigma({
       option.text = group;
       nodeGroup.add(option);
     });
+
+    return maximumDegree;
   }
 
   sigma.parsers.json('graph.json', instance, () => {
