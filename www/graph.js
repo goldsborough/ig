@@ -4,7 +4,9 @@ let instance = new sigma({
   renderer: {
     container: 'graph-container',
     type: 'canvas',
-    skipErrors: true
+    skipErrors: true,
+    labelThreshold: -2,
+    labelSize: 'proportional'
   }
 });
 
@@ -49,8 +51,8 @@ let instance = new sigma({
     $('min-degree').addEventListener('change', applyMinDegreeFilter);
     $('node-group').addEventListener('change', applyGroupFilter);
 
-    // Start by filtering out the bottom 25% of nodes
-    applyMinDegreeFilter(Math.trunc(maximumDegree / 25));
+    // Start by filtering out some of the nodes
+    applyMinDegreeFilter(Math.trunc(maximumDegree / 8));
   }
 
   function setupPane(graph, filter) {
