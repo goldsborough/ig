@@ -93,8 +93,6 @@ def main():
     walk.walk(include_graph, args)
 
     if include_graph.is_empty:
-        if args.verbose:
-            print('Could not find a single file', file=sys.stderr)
         return -1
 
     if args.json:

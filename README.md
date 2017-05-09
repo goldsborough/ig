@@ -60,7 +60,8 @@ optional arguments:
 
 But does it scale? It scales quite well. The graph you see above is the include
 graph for the entire LLVM and clang codebase, which spans more than 5,000 files
-and 1.5M LOC. Note that the visualization also includes sliders to group nodes by folder and filter low-degree nodes.
+and 1.5M LOC. Note that the visualization also includes sliders to group nodes
+by folder and filter out low-degree nodes.
 
 ## Installation
 
