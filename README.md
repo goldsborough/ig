@@ -1,9 +1,9 @@
 # :fireworks: ig
 
 <p align="center">
-  <img src="extra/graph.gif">
+  <img src="extra/graph.png">
   <br><br>
-  `ig` is a tool to visualize include graphs of C++ projects.
+  <code>ig</code> is a tool to visualize include graphs for C++ projects
   <br><br>
   <img alt="license" src="https://img.shields.io/github/license/mashape/apistatus.svg"/>
 </p>
@@ -24,13 +24,43 @@ will inspect the folder `include`, serve a website on `localhost:8080` and even
 open your browser for you. The full set of options currently include:
 
 ```sh
+usage: graph.py [-h] [-p PATTERNS] [-i PREFIXES] [-v] [--port PORT] [-o] [-j]
+                [--relation {includes,included-by}]
+                [--group-granularity GROUP_GRANULARITY] [--full-path]
+                [--colors COLORS] [--color-variation COLOR_VARIATION]
+                [--color-alpha-min COLOR_ALPHA_MIN]
+                directories [directories ...]
 
+Visualize C++ include graphs
+
+positional arguments:
+  directories           The directories to look at
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -p PATTERNS, --pattern PATTERNS
+                        The file (glob) patterns to look for
+  -i PREFIXES, -I PREFIXES, --prefix PREFIXES
+                        An include path for headers to recognize
+  -v, --verbose         Whether to turn on verbose output
+  --port PORT           The port to serve the visualization on
+  -o, --open            Whether to open the webpage immediately
+  -j, --json            Whether to print the graph JSON and not serve it
+  --relation {includes,included-by}
+                        The relation of edges in the graph
+  --group-granularity GROUP_GRANULARITY
+                        How coarse to group nodes (by folder)
+  --full-path           If set, shows the full path for nodes
+  --colors COLORS       The base RGB colors separated by commas
+  --color-variation COLOR_VARIATION
+                        The variation in RGB around the base colors
+  --color-alpha-min COLOR_ALPHA_MIN
+                        The minimum alpha value for colors
 ```
 
 But does it scale? It scales quite well. The graph you see above is the include
 graph for the entire LLVM and clang codebase, which spans more than 5,000 files
-and 1.5M LOC. The graph visualization may be a bit sluggish and slightly rape
-your GPU, but it still works.
+and 1.5M LOC.
 
 ## Installation
 

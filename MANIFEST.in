@@ -1,0 +1,8 @@
+include *.rst
+include LICENSE
+
+recursive-include tests *
+recursive-include files *ls
+recursive-include * Makefile
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]

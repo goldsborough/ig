@@ -188,7 +188,7 @@ def serve(open_immediately, port):
 
 
 def parse_arguments(args):
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description='Visualize C++ include graphs')
     parser.add_argument('directories',
                         nargs='+',
                         help='The directories to look at')
@@ -220,7 +220,7 @@ def parse_arguments(args):
     parser.add_argument('--relation',
                         choices=['includes', 'included-by'],
                         default='included-by',
-                        help='The specifies the relation of edges')
+                        help='The relation of edges in the graph')
     parser.add_argument('--group-granularity',
                         type=int,
                         default=2,
@@ -231,7 +231,7 @@ def parse_arguments(args):
     parser.add_argument('--colors',
                         type=lambda p: Colors(map(int, p.split(','))),
                         default='234, 82, 77',
-                        help='The base rgb colors separated by commas')
+                        help='The base RGB colors separated by commas')
     parser.add_argument('--color-variation',
                         type=int,
                         default=200,
