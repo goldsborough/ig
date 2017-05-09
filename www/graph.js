@@ -67,7 +67,7 @@ let instance = new sigma({
     });
   }
 
-  sigma.parsers.json('graph.json', instance, () => {
+  sigma.parsers.json('/tmp/graph.json', instance, () => {
     instance.refresh();
     instance.startForceAtlas2({
       worker: true,

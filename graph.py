@@ -4,7 +4,13 @@ import json
 import os
 import random
 import re
+import socketserver
 import sys
+import webbrowser
+
+import http.server
+
+GRAPH_PATH = '/tmp/graph.json'
 
 
 class Colors(object):
@@ -31,10 +37,10 @@ def generate_color(colors):
 
 
 class Graph(object):
-    def __init__(self, directed, full_path, colors):
+    def __init__(self, relation, full_path, colors):
         self.edges = []
         self.nodes = {}
-        self.directed = directed
+        self.relation = relation
         self.full_path = full_path
         self.colors = colors
 
@@ -52,12 +58,12 @@ class Graph(object):
             self._add_edge(node, neighbor)
 
     def to_json(self):
-        self.resize()
         nodes = list(self.nodes.values())
         return json.dumps(dict(nodes=nodes, edges=self.edges), indent=4)
 
-    def resize(self):
-        pass
+    def write(self):
+        with open(GRAPH_PATH, 'w') as graph_file:
+            graph_file.write(self.to_json())
 
     def _get_or_add_node(self, node_name, **settings):
         node = self.nodes.get(node_name)
@@ -92,14 +98,12 @@ class Graph(object):
         edge = settings
         edge['id'] = len(self.edges)
         edge['size'] = random.random()
+        edge['type'] = 'curvedArrow'
 
         edge['source'] = source['id']
         edge['target'] = target['id']
-        if self.directed == 'included-by':
+        if self.relation == 'included-by':
             source, target = target, source
-
-        if self.directed:
-            edge['type'] = 'curvedArrow'
 
         self.edges.append(edge)
 
@@ -114,7 +118,6 @@ class Graph(object):
 def try_prefixes(path, prefixes):
     for prefix in prefixes:
         full_path = os.path.realpath(os.path.join(prefix, path))
-        print('Trying ' + prefix + ' -- ' + full_path, file=sys.stderr)
         if os.path.exists(full_path):
             return full_path
 
@@ -135,14 +138,17 @@ def get_includes(filename, prefixes):
 
 
 def walk(args):
-    graph = Graph(args.directed, args.full_path, args.colors)
+    graph = Graph(args.relation, args.full_path, args.colors)
     for directory in args.directories:
         for pattern in args.patterns:
             path = os.path.realpath(directory)
             full_pattern = '{0}/**/{1}'.format(path, pattern)
-            print('Globbing for {0}'.format(full_pattern), file=sys.stderr)
+            if args.verbose:
+                print('Globbing for {0}'.format(full_pattern))
             for filename in glob.iglob(full_pattern, recursive=True):
                 if os.path.isdir(filename):
+                    if args.verbose:
+                        print('{0} is a directory, skipping'.format(filename))
                     continue
                 includes = get_includes(filename, [path] + args.prefixes)
                 graph.add(filename, includes)
@@ -160,21 +166,30 @@ def parse_arguments(args):
                         default=['*.[ch]pp', '*.[ch]'],
                         dest='patterns',
                         help='The file (glob) patterns to look for')
-    parser.add_argument('--directed',
-                        action='store_true',
-                        help="If set, draws directed edges.")
-    parser.add_argument('--relation',
-                        choices=['includes', 'included-by'],
-                        help="If '--directed' is set, specifies the relation "
-                             "of edges ")
-    parser.add_argument('--full-path',
-                        action='store_true',
-                        help='If set, shows the full path for nodes')
-    parser.add_argument('--prefix',
+    parser.add_argument('-i', '-I', '--prefix',
                         action='append',
                         dest='prefixes',
                         default=[os.getcwd()],
                         help='An include path for headers to recognize')
+    parser.add_argument('-v', '--verbose',
+                        action='store_true',
+                        help='Whether to turn on verbose output')
+
+    parser.add_argument('-p', '--port',
+                        type=int,
+                        default=8080,
+                        help='The port to serve the visualization on')
+    parser.add_argument('-o', '--open',
+                        action='store_true',
+                        help='Whether to open the webpage immediately')
+
+    parser.add_argument('--relation',
+                        choices=['includes', 'included-by'],
+                        default='included-by',
+                        help='The specifies the relation of edges')
+    parser.add_argument('--full-path',
+                        action='store_true',
+                        help='If set, shows the full path for nodes')
     parser.add_argument('--colors',
                         type=lambda p: Colors(map(int, p.split(','))),
                         default='234, 82, 77',
@@ -190,10 +205,8 @@ def parse_arguments(args):
 
     args = parser.parse_args(args)
 
+    # Necessary for standard includes
     args.prefixes.append('')
-
-    if args.directed and args.relation:
-        args.directed = args.relation
 
     if not (0 <= args.color_alpha_min <= 1):
         raise RuntimeError('--color-alpha-min must be in interval [0, 1]')
@@ -204,12 +217,30 @@ def parse_arguments(args):
     return args
 
 
+def serve(open_immediately, port):
+    address = 'http://localhost:{0}'.format(port)
+    print('Serving at {0}'.format(address))
+
+    os.chdir(os.path.dirname(__file__))
+    handler = http.server.SimpleHTTPRequestHandler
+    handler.extensions_map.update({
+        '.webapp': 'application/x-web-app-manifest+json',
+    })
+
+    server = socketserver.TCPServer(('', port), handler)
+
+    if open_immediately:
+        webbrowser.open(address)
+
+    server.serve_forever()
+
+
 def main():
     args = parse_arguments(sys.argv[1:])
     graph = walk(args)
-    print('Result: {0}'.format(graph), file=sys.stderr)
-
-    print(graph.to_json())
+    print('Result: {0}'.format(graph))
+    graph.write()
+    serve(args.open, args.port)
 
 
 if __name__ == '__main__':
