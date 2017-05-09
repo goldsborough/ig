@@ -3,7 +3,7 @@
 <p align="center">
   <img src="extra/graph.gif">
   <br><br>
-  <code>ig</code> is a tool to visualize include graphs for C++ projects
+  <code>ig</code> is a tool to interactively visualize include graphs for C++ projects
   <br><br>
   <img alt="license" src="https://img.shields.io/github/license/mashape/apistatus.svg"/>
 </p>
@@ -72,6 +72,31 @@ $ pip install ig-cpp
 ```
 
 Works with Python 2 and 3.
+
+## Examples
+
+Who ever said C++ was an ugly language?
+
+<p align="center">
+  <img src="extra/tf.png">
+  <br><br>
+  <b>TensorFlow</b>
+  <br><br>
+</p>
+
+<p align="center">
+  <img src="extra/llvm-adt.png">
+  <br><br>
+  <b>LLVM/ADT</b>
+  <br><br>
+</p>
+
+<p align="center">
+  <img src="extra/folly.png">
+  <br><br>
+  <b>Folly</b>
+  <br><br>
+</p>
 
 ## Authors
 
