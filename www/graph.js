@@ -76,9 +76,15 @@ let instance = new sigma({
       slowDown: 20,
       strongGravityMode: true
     });
-    setTimeout(() => instance.killForceAtlas2(), 10000);
     createFilter(instance);
   });
 
-  sigma.plugins.dragNodes(instance, instance.renderers[0]);
+  const drag = sigma.plugins.dragNodes(instance, instance.renderers[0]);
+  drag.bind('startdrag', event => {
+    if (instance.isForceAtlas2Running()) {
+      instance.killForceAtlas2()
+    }
+  });
+
+
 })(instance);
