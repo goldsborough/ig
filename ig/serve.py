@@ -1,8 +1,10 @@
 '''The server that serves the web visualization.'''
 
+import json
 import logging
 import os
 import shutil
+import socket
 import webbrowser
 
 from ig import paths
@@ -44,6 +46,7 @@ class Server(object):
         })
 
         server = socketserver.TCPServer(('', port), handler)
+        server.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
         address = 'http://localhost:{0}/graph.html'.format(port)
         log.info('Serving at %s', address)
@@ -53,6 +56,19 @@ class Server(object):
             webbrowser.open(address)
 
         server.serve_forever()
+
+    def write(self, payload):
+        '''
+        Writes the given JSON representation to the served location.
+
+        Args:
+            payload: The playlod to JSONify and store.
+        '''
+        path = os.path.join(self.directory, 'graph.json')
+        with open(path, 'w') as graph_file:
+            graph_file.write(json.dumps(payload, indent=4))
+
+        log.debug('Wrote graph file to {0}'.format(path))
 
     def cleanup(self):
         if self.delete_directory:

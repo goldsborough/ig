@@ -1,6 +1,5 @@
 ''' Defines the graph structure that stores the include relationships. '''
 
-import json
 import logging
 import os
 import random
@@ -64,30 +63,16 @@ class Graph(object):
 
     def to_json(self):
         '''
-        Turns the graph into a JSON file.
+        Turns the graph into a dictionary (a.k.a. JSON).
 
         The format is {"nodes": list of node objects, "edges": array of edge
         objects}.
 
         Returns:
-            A JSON representation of the graph.
+            A JSON (dictionary) representation of the graph.
         '''
         nodes = list(self.nodes.values())
-        return json.dumps(dict(nodes=nodes, edges=self.edges), indent=4)
-
-    def write(self, directory):
-        '''
-        Writes the graph's JSON representation to disk.
-
-        Args:
-            directory: The directory to write the file to.
-        '''
-        assert directory is not None
-        path = os.path.join(directory, 'graph.json')
-        with open(path, 'w') as graph_file:
-            graph_file.write(self.to_json())
-
-        log.debug('Wrote graph file to {0}'.format(path))
+        return dict(nodes=nodes, edges=self.edges)
 
     @property
     def is_empty(self):

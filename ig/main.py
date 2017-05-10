@@ -12,7 +12,7 @@ from ig import colors, graph, serve, walk
 
 def setup_logging():
     '''Sets up the root logger.'''
-    handler = logging.StreamHandler()
+    handler = logging.StreamHandler(sys.stderr)
     formatter = logging.Formatter('[%(levelname)s] %(message)s')
     handler.setFormatter(formatter)
 
@@ -37,7 +37,7 @@ def parse_arguments(args):
     parser.add_argument('directories',
                         nargs='+',
                         help='The directories to look at')
-    parser.add_argument('-p', '--pattern',
+    parser.add_argument('--pattern',
                         action='append',
                         default=['*.[ch]pp', '*.[ch]'],
                         dest='patterns',
@@ -51,7 +51,7 @@ def parse_arguments(args):
                         action='store_true',
                         help='Whether to turn on verbose output')
 
-    parser.add_argument('--port',
+    parser.add_argument('-p', '--port',
                         type=int,
                         default=8080,
                         help='The port to serve the visualization on')
@@ -70,6 +70,11 @@ def parse_arguments(args):
                         choices=['includes', 'included-by'],
                         default='included-by',
                         help='The relation of edges in the graph')
+    parser.add_argument('--min-degree',
+                        type=float,
+                        default=0.1,
+                        help='The initial minimum degree nodes should have to '
+                             'be displayed')
     parser.add_argument('--group-granularity',
                         type=int,
                         default=2,
@@ -104,6 +109,17 @@ def parse_arguments(args):
     return args
 
 
+def make_json(args, graph_json):
+    if args.json:
+        print(graph_json)
+        sys.exit(0)
+
+    # Additional settings to configure the visualization
+    settings = dict(initialDegree=args.min_degree)
+
+    return dict(settings=settings, graph=graph_json)
+
+
 def main():
     log = setup_logging()
 
@@ -120,15 +136,15 @@ def main():
 
     if include_graph.is_empty:
         log.debug('Could not find a single node, exiting')
-        return -1
+        sys.exit(-1)
 
-    if args.json:
-        log.debug(include_graph.to_json())
-        return 0
+    json = make_json(args, include_graph.to_json())
 
     with serve.Server(args.directory) as server:
-        include_graph.write(server.directory)
+        server.write(json)
         server.run(args.open, args.port)
+
+    log.info('Shutting down')
 
 if __name__ == '__main__':
     main()
