@@ -1,12 +1,12 @@
 ''' Defines the graph structure that stores the include relationships. '''
 
-from __future__ import print_function
-
 import json
+import logging
 import os
 import random
 
-from ig import paths
+
+log = logging.getLogger(__name__)
 
 
 class Graph(object):
@@ -19,7 +19,11 @@ class Graph(object):
     additional information. The representation is not very compact or optimal,
     but processing even very large projects still seems instant.
     '''
-    def __init__(self, relation, full_path, colors, group_granularity):
+    def __init__(self,
+                 relation,
+                 full_path,
+                 colors,
+                 group_granularity):
         '''
         Constructor.
 
@@ -28,6 +32,7 @@ class Graph(object):
             full_path: Whether to print node labels with their full path
             colors: A `Colors` object storing information about the color scheme
             group_granularity: The granularity setting for node groups
+            directory: The directory from which to serve the visualization.
         '''
         assert relation in ('includes', 'included-by')
 
@@ -70,15 +75,19 @@ class Graph(object):
         nodes = list(self.nodes.values())
         return json.dumps(dict(nodes=nodes, edges=self.edges), indent=4)
 
-    def write(self):
+    def write(self, directory):
         '''
         Writes the graph's JSON representation to disk.
 
-        The location is pre-determined to be in the `www` folder, for rendering.
+        Args:
+            directory: The directory to write the file to.
         '''
-        path = os.path.join(paths.WWW, 'graph.json')
+        assert directory is not None
+        path = os.path.join(directory, 'graph.json')
         with open(path, 'w') as graph_file:
             graph_file.write(self.to_json())
+
+        log.debug('Wrote graph file to {0}'.format(path))
 
     @property
     def is_empty(self):

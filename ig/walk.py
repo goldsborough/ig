@@ -1,9 +1,12 @@
 from __future__ import print_function
 
 import fnmatch
+import logging
 import os
 import re
 import sys
+
+log = logging.getLogger(__name__)
 
 
 INCLUDE_PATTERN = re.compile(r'^#include ["<](.*)[">]$')
@@ -90,11 +93,9 @@ def walk(graph, args):
             path = os.path.realpath(directory)
             for filename in glob(path, pattern):
                 if os.path.isdir(filename):
-                    if args.verbose:
-                        print('{0} is a directory, skipping'.format(filename),
-                              file=sys.stderr)
+                    log.debug('%s is a directory, skipping', filename)
                     continue
                 includes = get_includes(filename, [path] + args.prefixes)
                 graph.add(filename, includes)
 
-    print('Result: {0}'.format(repr(graph)), file=sys.stderr)
+    log.debug('Resulting graph: %s', repr(graph))

@@ -1,10 +1,26 @@
+'''Entry point and command line parsing for ig.'''
+
 from __future__ import print_function
 
 import argparse
+import logging
 import os
 import sys
 
-from ig import colors, graph, server, walk
+from ig import colors, graph, serve, walk
+
+
+def setup_logging():
+    '''Sets up the root logger.'''
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter('[%(levelname)s] %(message)s')
+    handler.setFormatter(formatter)
+
+    log = logging.getLogger(__package__)
+    log.addHandler(handler)
+    log.setLevel(logging.INFO)
+
+    return log
 
 
 def parse_arguments(args):
@@ -45,6 +61,10 @@ def parse_arguments(args):
     parser.add_argument('-j', '--json',
                         action='store_true',
                         help='Whether to print the graph JSON and not serve it')
+    parser.add_argument('-d', '--dir',
+                        dest='directory',
+                        help='The directory to store the served files in. If'
+                             'not supplied, a temporary directory is created.')
 
     parser.add_argument('--relation',
                         choices=['includes', 'included-by'],
@@ -85,7 +105,13 @@ def parse_arguments(args):
 
 
 def main():
+    log = setup_logging()
+
     args = parse_arguments(sys.argv[1:])
+    if args.verbose:
+        log.setLevel(logging.DEBUG)
+    log.debug('Received arguments: %s', args)
+
     include_graph = graph.Graph(args.relation,
                                 args.full_path,
                                 args.colors,
@@ -93,13 +119,16 @@ def main():
     walk.walk(include_graph, args)
 
     if include_graph.is_empty:
+        log.debug('Could not find a single node, exiting')
         return -1
 
     if args.json:
-        print(include_graph.to_json())
-    else:
-        include_graph.write()
-        server.serve(args.open, args.port)
+        log.debug(include_graph.to_json())
+        return 0
+
+    with serve.Server(args.directory) as server:
+        include_graph.write(server.directory)
+        server.run(args.open, args.port)
 
 if __name__ == '__main__':
     main()
