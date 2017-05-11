@@ -34,19 +34,19 @@ usage: ig [-h] [--pattern PATTERNS] [-i PREFIXES] [-v] [-p PORT] [-o] [-j]
 Visualize C++ include graphs
 
 positional arguments:
-  directories           The directories to look at
+  directories           The directories to inspect
 
 optional arguments:
   -h, --help            show this help message and exit
   --pattern PATTERNS    The file (glob) patterns to look for
   -i PREFIXES, -I PREFIXES, --prefix PREFIXES
                         An include path for headers to recognize
-  -v, --verbose         Whether to turn on verbose output
+  -v, --verbose         Turn on verbose output
   -p PORT, --port PORT  The port to serve the visualization on
-  -o, --open            Whether to open the webpage immediately
-  -j, --json            Whether to print the graph JSON and not serve it
+  -o, --open            Open the webpage immediately
+  -j, --json            Print the graph JSON and instead of serving it
   -d DIRECTORY, --dir DIRECTORY
-                        The directory to store the served files in. Ifnot
+                        The directory to store the served files in. If not
                         supplied, a temporary directory is created.
   --relation {includes,included-by}
                         The relation of edges in the graph

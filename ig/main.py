@@ -36,7 +36,7 @@ def parse_arguments(args):
     parser = argparse.ArgumentParser(description='Visualize C++ include graphs')
     parser.add_argument('directories',
                         nargs='+',
-                        help='The directories to look at')
+                        help='The directories to inspect')
     parser.add_argument('--pattern',
                         action='append',
                         default=['*.[ch]pp', '*.[ch]'],
@@ -49,7 +49,7 @@ def parse_arguments(args):
                         help='An include path for headers to recognize')
     parser.add_argument('-v', '--verbose',
                         action='store_true',
-                        help='Whether to turn on verbose output')
+                        help='Turn on verbose output')
 
     parser.add_argument('-p', '--port',
                         type=int,
@@ -57,13 +57,13 @@ def parse_arguments(args):
                         help='The port to serve the visualization on')
     parser.add_argument('-o', '--open',
                         action='store_true',
-                        help='Whether to open the webpage immediately')
+                        help='Open the webpage immediately')
     parser.add_argument('-j', '--json',
                         action='store_true',
-                        help='Whether to print the graph JSON and not serve it')
+                        help='Print the graph JSON instead of serving it')
     parser.add_argument('-d', '--dir',
                         dest='directory',
-                        help='The directory to store the served files in. If'
+                        help='The directory to store the served files in. If '
                              'not supplied, a temporary directory is created.')
 
     parser.add_argument('--relation',
