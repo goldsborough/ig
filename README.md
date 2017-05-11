@@ -24,12 +24,12 @@ will inspect the folder `include`, serve a website on `localhost:8080` and even
 open your browser for you. The full set of options currently include:
 
 ```sh
-usage: graph.py [-h] [-p PATTERNS] [-i PREFIXES] [-v] [--port PORT] [-o] [-j]
-                [--relation {includes,included-by}]
-                [--group-granularity GROUP_GRANULARITY] [--full-path]
-                [--colors COLORS] [--color-variation COLOR_VARIATION]
-                [--color-alpha-min COLOR_ALPHA_MIN]
-                directories [directories ...]
+usage: ig [-h] [--pattern PATTERNS] [-i PREFIXES] [-v] [-p PORT] [-o] [-j]
+          [-d DIRECTORY] [--relation {includes,included-by}]
+          [--min-degree MIN_DEGREE] [--group-granularity GROUP_GRANULARITY]
+          [--full-path] [--colors COLORS] [--color-variation COLOR_VARIATION]
+          [--color-alpha-min COLOR_ALPHA_MIN]
+          directories [directories ...]
 
 Visualize C++ include graphs
 
@@ -38,16 +38,21 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  -p PATTERNS, --pattern PATTERNS
-                        The file (glob) patterns to look for
+  --pattern PATTERNS    The file (glob) patterns to look for
   -i PREFIXES, -I PREFIXES, --prefix PREFIXES
                         An include path for headers to recognize
   -v, --verbose         Whether to turn on verbose output
-  --port PORT           The port to serve the visualization on
+  -p PORT, --port PORT  The port to serve the visualization on
   -o, --open            Whether to open the webpage immediately
   -j, --json            Whether to print the graph JSON and not serve it
+  -d DIRECTORY, --dir DIRECTORY
+                        The directory to store the served files in. Ifnot
+                        supplied, a temporary directory is created.
   --relation {includes,included-by}
                         The relation of edges in the graph
+  --min-degree MIN_DEGREE
+                        The initial minimum degree nodes should have to be
+                        displayed
   --group-granularity GROUP_GRANULARITY
                         How coarse to group nodes (by folder)
   --full-path           If set, shows the full path for nodes

@@ -110,6 +110,16 @@ def parse_arguments(args):
 
 
 def make_json(args, graph_json):
+    '''
+    Creates the JSON payload for the visualization.
+
+    Args:
+        args: The command line arguments.
+        graph_json: The JSON dict from the graph.
+
+    Returns:
+        The payload.
+    '''
     if args.json:
         print(graph_json)
         sys.exit(0)

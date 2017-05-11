@@ -18,10 +18,20 @@ if not os.path.exists(WWW):
 
 
 def create_directory(directory):
+    '''
+    (Maybe) creates a directory and copies the `www` folder to it.
+
+    Args:
+        directory: Optionally, an existing directory to copy to.
+
+    Returns:
+        The path of the possibly created directory.
+    '''
     if directory is None:
         directory = tempfile.mkdtemp(prefix='ig-')
         log.debug('Created temporary directory %s', directory)
 
+    # Has to not exist for copytree
     if os.path.exists(directory):
         shutil.rmtree(directory)
 
