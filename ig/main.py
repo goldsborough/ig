@@ -6,6 +6,7 @@ import argparse
 import logging
 import os
 import sys
+from json import dumps as json_dumps
 
 from ig import colors, graph, serve, walk
 
@@ -121,7 +122,7 @@ def make_json(args, graph_json):
         The payload.
     '''
     if args.json:
-        print(graph_json)
+        print(json_dumps(graph_json, indent=4))
         sys.exit(0)
 
     # Additional settings to configure the visualization
